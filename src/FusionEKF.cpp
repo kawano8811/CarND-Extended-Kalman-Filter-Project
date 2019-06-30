@@ -47,8 +47,8 @@ FusionEKF::FusionEKF() {
   ekf_.P_ = MatrixXd(4, 4);
   ekf_.P_ << 1.0, 0.0, 0.0, 0.0,
              0.0, 1.0, 0.0, 0.0,
-             0.0, 0.0, 1.0, 0.0,
-             0.0, 0.0, 0.0, 1.0;
+             0.0, 0.0, 1000, 0.0,
+             0.0, 0.0, 0.0, 1000;
 
 }
 
@@ -74,7 +74,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     ekf_.x_ << 1, 1, 1, 1;
 
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
-      // TODO: Convert radar from polar to cartesian coordinates 
+      // TODO: Convert radar from polar to cartesian coordinates
       //         and initialize state.
       double rho = measurement_pack.raw_measurements_(0);
       double phi = measurement_pack.raw_measurements_(1);
@@ -82,16 +82,16 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
       ekf_.x_(0) = rho * cos(phi);      // x
       ekf_.x_(1) = rho * sin(phi);      // y
-      ekf_.x_(2) = rho_dot * cos(phi);  // vx 
-      ekf_.x_(3) = rho_dot * sin(phi);  // vx 
+      ekf_.x_(2) = rho_dot * cos(phi);  // vx
+      ekf_.x_(3) = rho_dot * sin(phi);  // vx
 
     }
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
       // TODO: Initialize state.
       ekf_.x_(0) = measurement_pack.raw_measurements_(0);      // x
       ekf_.x_(1) = measurement_pack.raw_measurements_(1);      // y
-      ekf_.x_(2) = 0.0;  // vx 
-      ekf_.x_(3) = 0.0;  // vx 
+      ekf_.x_(2) = 0.0;  // vx
+      ekf_.x_(3) = 0.0;  // vx
     }
 
     // done initializing, no need to predict or update
@@ -109,7 +109,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    * TODO: Update the process noise covariance matrix.
    * Use noise_ax = 9 and noise_ay = 9 for your Q matrix.
    */
-  double dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.0; 
+  double dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.0;
   previous_timestamp_ = measurement_pack.timestamp_;
 
   double dt_2 = dt * dt;
