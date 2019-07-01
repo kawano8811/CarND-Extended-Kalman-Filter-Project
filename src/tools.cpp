@@ -35,12 +35,14 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
 
     // coefficient-wise multiplication
     residual = residual.array()*residual.array();
-    residual = residual.array().sqrt();
     rmse += residual;
   }
 
   // calculate the mean
   rmse = rmse/estimations.size();
+
+  // calculate the squared root
+  rmse = rmse.array().sqrt();
 
   // return the result
   return rmse;
@@ -74,4 +76,42 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
       py * (vx * py - vy * px) / c3, px * (px * vy - py * vx) / c3, px / c2, py / c2;
 
   return Hj;
+}
+
+MatrixXd Tools::CalculateHx(const VectorXd& x_state) {
+  /**
+   * Calculate a Hx matrix
+   */
+  double px = x_state(0);
+  double py = x_state(1);
+  double vx = x_state(2);
+  double vy = x_state(3);
+
+  // calculate y
+  double rho = sqrt(px * px + py * py);
+  double phi = atan2(py, px);
+  double rho_dot = 0.0;
+  if (rho > 0.0001) {
+    rho_dot = (px * vx + py * vy) / rho;
+  }
+  VectorXd hx = VectorXd(3);
+  hx << rho, phi, rho_dot;
+  return hx;
+}
+
+VectorXd Tools::PolarToCartesian(const VectorXd& polar) {
+  /**
+   * Convert cartesian to polar
+   */
+  double rho = polar(0);
+  double phi = polar(1);
+  double rho_dot = polar(2);
+
+  double px = rho * cos(phi);
+  double py = rho * sin(phi);
+  double vx = rho_dot * cos(phi);
+  double vy = rho_dot * sin(phi);
+  VectorXd cartesian = VectorXd(4);
+  cartesian << px, py, vx, vy;
+  return cartesian;
 }
